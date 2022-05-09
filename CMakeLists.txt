@@ -14,4 +14,4 @@ if(BUILD_VULKAN)
     message("VULKAN WILL BE BUILT")
 endif()
 
-target_include_directories(glad PUBLIC ./include)
+target_include_directories(glad PUBLIC ./include ./include/glad)
