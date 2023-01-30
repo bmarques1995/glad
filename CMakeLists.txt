@@ -6,7 +6,7 @@ set(GL_SOURCES)
 
 if(WIN32)
     set(GL_SOURCES ${GL_SOURCES} "src/gl.c" "src/wgl.c")
-    install(DIRECTORY include/glad DESTINATION ${CMAKE_INSTALL_PREFIX}/include FILES_MATCHING PATTERN gl.h PATTERN gl_safe_include.h PATTERN wgl.h)
+    install(DIRECTORY include/glad DESTINATION ${CMAKE_INSTALL_PREFIX}/include FILES_MATCHING PATTERN gl.h PATTERN gl_safe_include.h PATTERN wgl.h PATTERN wglext.h)
 endif(WIN32)
 
 #Needs test
