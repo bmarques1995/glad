@@ -22,11 +22,14 @@ endif()
 
 add_library(gladstatic STATIC ${GL_SOURCES} ${GL_HEADERS})
 add_library(glad SHARED ${GL_SOURCES} ${GL_HEADERS})
+if(WIN32)
 target_compile_definitions(glad PUBLIC GLAD_PLATFORM_WIN32 GLAD_API_CALL_EXPORT_BUILD GLAD_API_CALL_EXPORT)
 target_compile_definitions(gladstatic PUBLIC GLAD_PLATFORM_WIN32)
+target_link_libraries(glad PRIVATE opengl32)
+endif()
 target_include_directories(glad PUBLIC ./include)
 target_include_directories(gladstatic PUBLIC ./include)
-target_link_libraries(glad PRIVATE opengl32)
+
 
 install(DIRECTORY include/KHR DESTINATION ${CMAKE_INSTALL_PREFIX}/include FILES_MATCHING PATTERN khrplatform.h)
 install(TARGETS glad RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
