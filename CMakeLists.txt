@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(glad LANGUAGES C)
+set(PROJECT_NAME glad)
+
+project(${PROJECT_NAME} LANGUAGES C)
 
 set(GL_SOURCES)
 set(GL_HEADERS)
@@ -20,19 +22,43 @@ if(UNIX AND NOT APPLE)
     install(DIRECTORY include/EGL DESTINATION ${CMAKE_INSTALL_PREFIX}/include FILES_MATCHING PATTERN eglplatform.h)
 endif()
 
-add_library(gladstatic STATIC ${GL_SOURCES} ${GL_HEADERS})
-add_library(glad SHARED ${GL_SOURCES} ${GL_HEADERS})
+add_library(${PROJECT_NAME}static STATIC ${GL_SOURCES} ${GL_HEADERS})
+add_library(${PROJECT_NAME} SHARED ${GL_SOURCES} ${GL_HEADERS})
 if(WIN32)
-target_compile_definitions(glad PUBLIC GLAD_PLATFORM_WIN32 GLAD_API_CALL_EXPORT_BUILD GLAD_API_CALL_EXPORT)
-target_compile_definitions(gladstatic PUBLIC GLAD_PLATFORM_WIN32)
-target_link_libraries(glad PRIVATE opengl32)
+target_compile_definitions(${PROJECT_NAME} PUBLIC GLAD_PLATFORM_WIN32 GLAD_API_CALL_EXPORT_BUILD GLAD_API_CALL_EXPORT)
+target_compile_definitions(${PROJECT_NAME}static PUBLIC GLAD_PLATFORM_WIN32)
+target_link_libraries(${PROJECT_NAME} PRIVATE opengl32)
 endif()
-target_include_directories(glad PUBLIC ./include)
-target_include_directories(gladstatic PUBLIC ./include)
+target_include_directories(${PROJECT_NAME} PUBLIC ./include)
+target_include_directories(${PROJECT_NAME}static PUBLIC ./include)
 
+set(GLAD_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
+set(GLAD_VERSION_CONFIG "${GLAD_GENERATED_DIR}/${PROJECT_NAME}ConfigVersion.cmake")
+set(GLAD_PROJECT_CONFIG "${GLAD_GENERATED_DIR}/${PROJECT_NAME}Config.cmake")
+set(GLAD_TARGETS_EXPORT_NAME "${PROJECT_NAME}Targets")
+set(GLAD_CONFIG_INSTALL_DIR "lib/cmake/${PROJECT_NAME}")
+set(GLAD_NAMESPACE "${PROJECT_NAME}::")
+set(GLAD_VERSION 2.0.0)
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+    "${GLAD_VERSION_CONFIG}" VERSION ${GLAD_VERSION} COMPATIBILITY SameMajorVersion
+)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/config.cmake" "${GLAD_PROJECT_CONFIG}" @ONLY)
 
 install(DIRECTORY include/KHR DESTINATION ${CMAKE_INSTALL_PREFIX}/include FILES_MATCHING PATTERN khrplatform.h)
+# Install cmake config files
+install(
+    FILES "${GLAD_PROJECT_CONFIG}" "${GLAD_VERSION_CONFIG}"
+    DESTINATION "${GLAD_CONFIG_INSTALL_DIR}")
+# Install cmake targets files
+install(
+    EXPORT "${GLAD_TARGETS_EXPORT_NAME}"
+    NAMESPACE "${GLAD_NAMESPACE}"
+    DESTINATION "${GLAD_CONFIG_INSTALL_DIR}")
+
 install(TARGETS glad gladstatic
+        EXPORT glad
         RUNTIME DESTINATION "${INSTALL_BIN_DIR}"
         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
-        LIBRARY DESTINATION "${INSTALL_LIB_DIR}" )
+        LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
