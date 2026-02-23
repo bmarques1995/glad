@@ -50,10 +50,13 @@ install(
 
 add_library(${PROJECT_NAME}static STATIC ${GL_SOURCES} ${GL_HEADERS})
 add_library(${PROJECT_NAME} SHARED ${GL_SOURCES} ${GL_HEADERS})
-target_compile_definitions(${PROJECT_NAME} PUBLIC GLAD_API_CALL_EXPORT PRIVATE GLAD_API_CALL_EXPORT_BUILD )
+target_compile_definitions(${PROJECT_NAME} PUBLIC GLAD_API_CALL_EXPORT PRIVATE GLAD_API_CALL_EXPORT_BUILD)
 if(WIN32)
-target_link_libraries(${PROJECT_NAME} PRIVATE opengl32)
+    target_link_libraries(${PROJECT_NAME} PUBLIC opengl32)
+    target_link_libraries(${PROJECT_NAME}static PUBLIC opengl32)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC GLAD_PLATFORM_WIN32)
 endif()
+
 target_include_directories(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 target_include_directories(${PROJECT_NAME}static PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 
